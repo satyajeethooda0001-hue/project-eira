@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Project Eira — AI Companion for Indian Students. Chat with Tanya & Kian, your intelligent AI friends powered by Groq & Llama 3.3">
+  <meta name="theme-color" content="#0a0a10">
+  <title>Project Eira — AI Companion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    /* === RESET === */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg: #060610;
+      --surface: #0e0e1a;
+      --card: #12121e;
+      --border: rgba(255,255,255,0.06);
+      --text: #f0f0f5;
+      --text-dim: #8888a0;
+      --text-muted: #55556a;
+      --pink: #ff528a;
+      --blue: #638cff;
+      --pink-soft: rgba(255,82,138,0.12);
+      --blue-soft: rgba(99,140,255,0.12);
+      --gradient: linear-gradient(135deg, #ff528a, #638cff);
+      --radius: 20px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* === ANIMATED BACKGROUND === */
+    .bg-grid {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-image: 
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bg-orbs {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      animation: orbFloat 15s ease-in-out infinite alternate;
+    }
+
+    .orb-1 {
+      width: 500px; height: 500px;
+      background: rgba(255, 82, 138, 0.08);
+      top: -10%; left: -10%;
+    }
+
+    .orb-2 {
+      width: 400px; height: 400px;
+      background: rgba(99, 140, 255, 0.08);
+      bottom: -5%; right: -5%;
+      animation-delay: -5s;
+    }
+
+    .orb-3 {
+      width: 300px; height: 300px;
+      background: rgba(168, 85, 247, 0.06);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      animation-delay: -10s;
+    }
+
+    @keyframes orbFloat {
+      0% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -40px) scale(1.1); }
+      66% { transform: translate(-20px, 20px) scale(0.95); }
+      100% { transform: translate(10px, -10px) scale(1.05); }
+    }
+
+    /* === CONTAINER === */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* === NAVBAR === */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(6, 6, 16, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    .nav-logo {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: var(--gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .nav-brand span {
+      font-weight: 700;
+      font-size: 17px;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-link {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--text);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .nav-cta {
+      background: var(--gradient);
+      color: white;
+      padding: 9px 20px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 13px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .nav-cta:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+
+    /* === HERO SECTION === */
+    .hero {
+      padding-top: 140px;
+      padding-bottom: 80px;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-dim);
+      font-weight: 500;
+      margin-bottom: 28px;
+      animation: fadeInUp 0.8s ease;
+    }
+
+    .hero-badge .dot {
+      width: 8px; height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .hero h1 {
+      font-size: clamp(40px, 7vw, 72px);
+      font-weight: 800;
+      letter-spacing: -2px;
+      line-height: 1.05;
+      margin-bottom: 24px;
+      animation: fadeInUp 0.8s ease 0.1s both;
+    }
+
+    .hero h1 .gradient-text {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: clamp(16px, 2vw, 20px);
+      color: var(--text-dim);
+      max-width: 580px;
+      margin: 0 auto 40px;
+      line-height: 1.6;
+      animation: fadeInUp 0.8s ease 0.2s both;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: fadeInUp 0.8s ease 0.3s both;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      background: var(--gradient);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.15);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(255, 82, 138, 0.25);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* === PREVIEW MOCKUP === */
+    .hero-preview {
+      margin-top: 60px;
+      animation: fadeInUp 0.8s ease 0.4s both;
+    }
+
+    .preview-frame {
+      position: relative;
+      max-width: 800px;
+      margin: 0 auto;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 
+        0 20px 80px rgba(0,0,0,0.5),
+        0 0 100px rgba(255, 82, 138, 0.05),
+        0 0 100px rgba(99, 140, 255, 0.05);
+    }
+
+    .preview-topbar {
+      height: 40px;
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .preview-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+
+    .preview-dot:nth-child(1) { background: #ff5f57; }
+    .preview-dot:nth-child(2) { background: #febc2e; }
+    .preview-dot:nth-child(3) { background: #28c840; }
+
+    .preview-body {
+      background: var(--card);
+      padding: 40px;
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      min-height: 300px;
+      align-items: center;
+    }
+
+    .preview-char {
+      text-align: center;
+      padding: 28px 24px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      width: 220px;
+      transition: all 0.3s ease;
+    }
+
+    .preview-char:hover {
+      transform: translateY(-4px);
+    }
+
+    .preview-char.tanya { background: var(--pink-soft); border-color: rgba(255,82,138,0.15); }
+    .preview-char.kian { background: var(--blue-soft); border-color: rgba(99,140,255,0.15); }
+
+    .preview-avatar {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 12px;
+    }
+
+    .preview-char.tanya .preview-avatar { border: 3px solid var(--pink); }
+    .preview-char.kian .preview-avatar { border: 3px solid var(--blue); }
+
+    .preview-char h3 { font-size: 18px; margin-bottom: 4px; }
+    .preview-char p { font-size: 12px; color: var(--text-dim); }
+
+    /* === FEATURES SECTION === */
+    .features {
+      padding: 100px 0;
+    }
+
+    .section-label {
+      text-transform: uppercase;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .section-label.pink { color: var(--pink); }
+    .section-label.blue { color: var(--blue); }
+
+    .section-title {
+      text-align: center;
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+    }
+
+    .section-subtitle {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 16px;
+      margin-bottom: 60px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      padding: 32px 28px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--gradient);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(255,255,255,0.1);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    }
+
+    .feature-card:hover::before { opacity: 1; }
+
+    .feature-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 18px;
+    }
+
+    .feature-icon.pink { background: var(--pink-soft); }
+    .feature-icon.blue { background: var(--blue-soft); }
+    .feature-icon.purple { background: rgba(168, 85, 247, 0.12); }
+    .feature-icon.green { background: rgba(34, 197, 94, 0.12); }
+    .feature-icon.amber { background: rgba(234, 179, 8, 0.12); }
+    .feature-icon.red { background: rgba(239, 68, 68, 0.12); }
+
+    .feature-card h3 {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      letter-spacing: -0.3px;
+    }
+
+    .feature-card p {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* === TECH STACK === */
+    .tech {
+      padding: 80px 0;
+    }
+
+    .tech-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    .tech-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 24px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      transition: all 0.3s ease;
+    }
+
+    .tech-pill:hover {
+      border-color: rgba(255,255,255,0.12);
+      transform: translateY(-2px);
+    }
+
+    .tech-pill .tech-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+    }
+
+    /* === SECURITY SECTION === */
+    .security {
+      padding: 80px 0;
+    }
+
+    .security-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .security-card {
+      padding: 24px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .security-card:hover {
+      border-color: rgba(34, 197, 94, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .security-card .shield {
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+
+    .security-card h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .security-card p {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    /* === CTA SECTION === */
+    .cta {
+      padding: 100px 0;
+      text-align: center;
+    }
+
+    .cta-box {
+      padding: 60px 40px;
+      border-radius: 24px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-box::before {
+      content: '';
+      position: absolute;
+      top: -100px; left: -100px;
+      width: 400px; height: 400px;
+      background: rgba(255, 82, 138, 0.06);
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+
+    .cta-box::after {
+      content: '';
+      position: absolute;
+      bottom: -100px; right: -100px;
+      width: 400px; height: 400px;
+      background: rgba(99, 140, 255, 0.06);
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+
+    .cta-box h2 {
+      font-size: clamp(26px, 4vw, 38px);
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-box p {
+      color: var(--text-dim);
+      font-size: 16px;
+      margin-bottom: 32px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-box .btn-primary {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* === FOOTER === */
+    footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    footer p {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    footer strong {
+      color: var(--text-dim);
+    }
+
+    footer .footer-links {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 12px;
+    }
+
+    footer .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 12px;
+      transition: color 0.2s;
+    }
+
+    footer .footer-links a:hover {
+      color: var(--text);
+    }
+
+    /* === SCROLL ANIMATIONS === */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* === MOBILE === */
+    @media (max-width: 768px) {
+      .nav-link { display: none; }
+      
+      .hero { padding-top: 110px; padding-bottom: 60px; }
+      
+      .preview-body {
+        flex-direction: column;
+        padding: 24px;
+      }
+
+      .preview-char { width: 100%; }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .security-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .cta-box {
+        padding: 40px 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- NAVBAR -->
+  <nav>
+    <div class="nav-inner">
+      <a href="/landing" class="nav-brand">
+        <div class="nav-logo">🧠</div>
+        <span>Project Eira</span>
+      </a>
+      <div class="nav-links">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#tech" class="nav-link">Tech Stack</a>
+        <a href="#security" class="nav-link">Security</a>
+        <a href="/" class="nav-cta">Launch App →</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        v4.0 — Hardened & Feature-Rich
+      </div>
+      <h1>Meet Your AI<br><span class="gradient-text">Study Companions</span></h1>
+      <p>Tanya & Kian are AI-powered companions built for Indian students. Get emotional support, exam help, code reviews, and more — all in Hinglish, all private.</p>
+      <div class="hero-actions">
+        <a href="/" class="btn-primary">
+          <span>Start Chatting</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="#features" class="btn-secondary">
+          <span>Explore Features</span>
+        </a>
+      </div>
+
+      <!-- PREVIEW -->
+      <div class="hero-preview">
+        <div class="preview-frame">
+          <div class="preview-topbar">
+            <div class="preview-dot"></div>
+            <div class="preview-dot"></div>
+            <div class="preview-dot"></div>
+          </div>
+          <div class="preview-body">
+            <div class="preview-char tanya">
+              <img src="/images/tanya.jpg" class="preview-avatar" alt="Tanya">
+              <h3>Tanya</h3>
+              <p>Warm · Caring · Supportive 💕</p>
+            </div>
+            <div class="preview-char kian">
+              <img src="/images/kian.jpg" class="preview-avatar" alt="Kian">
+              <h3>Kian</h3>
+              <p>Sharp · Witty · Strategic 🤙</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-label pink">FEATURES</div>
+      <h2 class="section-title reveal">Everything You Need</h2>
+      <p class="section-subtitle reveal">From emotional support to exam prep, Project Eira has you covered.</p>
+      
+      <div class="features-grid">
+        <div class="feature-card reveal">
+          <div class="feature-icon pink">🧠</div>
+          <h3>Dual AI Personalities</h3>
+          <p>Tanya for emotional support & lifestyle. Kian for logic, exams & strategy. Switch between them anytime.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon blue">📄</div>
+          <h3>PDF & Document Sharing</h3>
+          <p>Upload PDFs, DOCX, or text files. The AI reads, summarizes, and answers questions from your documents.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon purple">🖥️</div>
+          <h3>Screen Sharing</h3>
+          <p>Share your screen and let the AI analyze what you're looking at — code, homework, articles, anything.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon green">🧬</div>
+          <h3>Long-Term Memory</h3>
+          <p>The AI remembers your name, age, interests, and past conversations. It gets smarter the more you talk.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon amber">🎤</div>
+          <h3>Voice Input & Output</h3>
+          <p>Speak your messages and hear AI responses with built-in text-to-speech. Hands-free conversations.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon red">🔒</div>
+          <h3>Security Hardened</h3>
+          <p>Helmet, rate limiting, XSS protection, input sanitization, and file type validation built in.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECH STACK -->
+  <section class="tech" id="tech">
+    <div class="container">
+      <div class="section-label blue">TECH STACK</div>
+      <h2 class="section-title reveal">Built With the Best</h2>
+      <p class="section-subtitle reveal">Modern, production-grade technologies powering every interaction.</p>
+      
+      <div class="tech-grid reveal">
+        <div class="tech-pill"><span class="tech-dot" style="background:#22c55e"></span> Node.js + Express</div>
+        <div class="tech-pill"><span class="tech-dot" style="background:#ff528a"></span> Groq API</div>
+        <div class="tech-pill"><span class="tech-dot" style="background:#638cff"></span> Llama 3.3 70B</div>
+        <div class="tech-pill"><span class="tech-dot" style="background:#a855f7"></span> Ollama (Local AI)</div>
+        <div class="tech-pill"><span class="tech-dot" style="background:#eab308"></span> SQLite + Vectra</div>
+        <div class="tech-pill"><span class="tech-dot" style="background:#ef4444"></span> Helmet.js</div>
+        <div class="tech-pill"><span class="tech-dot" style="background:#06b6d4"></span> Vision API</div>
+        <div class="tech-pill"><span class="tech-dot" style="background:#f97316"></span> Web Speech API</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECURITY -->
+  <section class="security" id="security">
+    <div class="container">
+      <div class="section-label" style="color: #22c55e;">SECURITY</div>
+      <h2 class="section-title reveal">Enterprise-Grade Safety</h2>
+      <p class="section-subtitle reveal">Your conversations are protected with multiple layers of security.</p>
+      
+      <div class="security-grid reveal">
+        <div class="security-card">
+          <div class="shield">🛡️</div>
+          <h4>Helmet.js</h4>
+          <p>Secure HTTP headers prevent common attacks</p>
+        </div>
+        <div class="security-card">
+          <div class="shield">⚡</div>
+          <h4>Rate Limiting</h4>
+          <p>Prevents abuse and DDoS-style attacks</p>
+        </div>
+        <div class="security-card">
+          <div class="shield">🧹</div>
+          <h4>XSS Protection</h4>
+          <p>All user input sanitized against injection</p>
+        </div>
+        <div class="security-card">
+          <div class="shield">📁</div>
+          <h4>File Validation</h4>
+          <p>Whitelist-only file types with size limits</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="container">
+      <div class="cta-box reveal">
+        <h2>Ready to Meet Your<br>AI Companion?</h2>
+        <p>Start a conversation with Tanya or Kian right now.</p>
+        <a href="/" class="btn-primary">
+          Launch AI Companion →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <p>Developed with ❤️ by <strong>Satyajeet</strong></p>
+      <p style="margin-top: 4px; font-size: 12px; color: var(--text-muted);">Project Eira v4.0 — Powered by Groq • Ollama • Llama 3.3</p>
+      <div class="footer-links">
+        <a href="/">App</a>
+        <a href="#features">Features</a>
+        <a href="#tech">Tech Stack</a>
+        <a href="#security">Security</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCROLL REVEAL SCRIPT -->
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>

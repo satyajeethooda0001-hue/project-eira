@@ -1,0 +1,24 @@
+{
+  "name": "AI Companion",
+  "short_name": "AI Companion",
+  "description": "Chat with Tanya & Kian — your personal AI companions",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0d1a",
+  "theme_color": "#0d0d1a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/images/tanya.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/tanya.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
