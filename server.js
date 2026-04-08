@@ -43,6 +43,7 @@ const upload = multer({
 });
 
 const app = express();
+app.set('trust proxy', 1); // Trust Render's proxy for accurate rate limiting
 const PORT = process.env.PORT || 3000;
 
 // ============================================================
